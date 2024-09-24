@@ -1,7 +1,19 @@
 package main
 
-import "fmt"
+import (
+	"log"
+	"net/http"
+)
+
+func home(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Hello from snippetbox"))
+}
 
 func main() {
-	fmt.Println("Hello, snippetbox!")
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", home)
+
+	log.Print("starting server on :4000")
+	error := http.ListenAndServe(":4000", mux)
+	log.Fatal(error)
 }
