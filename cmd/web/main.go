@@ -1,14 +1,25 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
 )
 
+type config struct {
+	addr      string
+	staticDir string
+}
+
 func main() {
 	mux := http.NewServeMux()
+	var cfg config
 
-	fileServer := http.FileServer(http.Dir("./ui/static/"))
+	flag.StringVar(&cfg.addr, "addr", ":4000", "HTTP network address")
+	flag.StringVar(&cfg.staticDir, "staticDir", "./ui/static/", "path to the directory used for serving static files")
+	flag.Parse()
+
+	fileServer := http.FileServer(http.Dir(cfg.staticDir))
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
 	mux.HandleFunc("GET /{$}", home)
@@ -16,7 +27,7 @@ func main() {
 	mux.HandleFunc("GET /snippet/create", snippetCreate)
 	mux.HandleFunc("POST /snippet/create", snippetCreatePost)
 
-	log.Print("starting server on :4000")
-	error := http.ListenAndServe(":4000", mux)
+	log.Printf("starting server on %s", cfg.addr)
+	error := http.ListenAndServe(cfg.addr, mux)
 	log.Fatal(error)
 }
