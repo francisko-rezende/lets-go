@@ -2,8 +2,9 @@ package main
 
 import (
 	"flag"
-	"log"
+	"log/slog"
 	"net/http"
+	"os"
 )
 
 type config struct {
@@ -19,6 +20,8 @@ func main() {
 	flag.StringVar(&cfg.staticDir, "staticDir", "./ui/static/", "path to the directory used for serving static files")
 	flag.Parse()
 
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
 	fileServer := http.FileServer(http.Dir(cfg.staticDir))
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
@@ -27,7 +30,8 @@ func main() {
 	mux.HandleFunc("GET /snippet/create", snippetCreate)
 	mux.HandleFunc("POST /snippet/create", snippetCreatePost)
 
-	log.Printf("starting server on %s", cfg.addr)
+	logger.Info("starting server", slog.String("addr", cfg.addr))
 	error := http.ListenAndServe(cfg.addr, mux)
-	log.Fatal(error)
+	logger.Error(error.Error())
+	os.Exit(1)
 }

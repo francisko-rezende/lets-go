@@ -18,7 +18,6 @@ func home(w http.ResponseWriter, r *http.Request) {
 	}
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-
 		log.Print(err.Error())
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
