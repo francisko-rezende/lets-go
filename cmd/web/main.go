@@ -3,11 +3,12 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"html/template"
 	"log/slog"
 	"net/http"
 	"os"
 
-	_ "github.com/go-sql-driver/mysql" // New import
+	_ "github.com/go-sql-driver/mysql"
 	"snippetbox.francisko/internal/models"
 )
 
@@ -16,8 +17,9 @@ type config struct {
 }
 
 type application struct {
-	logger   *slog.Logger
-	snippets *models.SnippetModel
+	logger        *slog.Logger
+	snippets      *models.SnippetModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -37,15 +39,27 @@ func main() {
 
 	defer db.Close()
 
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
 	app := &application{
-		logger:   logger,
-		snippets: &models.SnippetModel{DB: db},
+		logger:        logger,
+		snippets:      &models.SnippetModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	logger.Info("starting server", slog.String("addr", cfg.addr))
 	err = http.ListenAndServe(cfg.addr, app.routes())
 	logger.Error(err.Error())
 	os.Exit(1)
+	// maybe replace with
+	// if err != nil && err != http.ErrServerClosed {
+	// 	logger.Error(err.Error())
+	// 	os.Exit(1)
+	// }
 }
 
 func openDB(dsn string) (*sql.DB, error) {
