@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	_ "github.com/go-sql-driver/mysql" // New import
+	_ "github.com/go-sql-driver/mysql"
 	"snippetbox.francisko/internal/models"
 )
 
