@@ -2,11 +2,32 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"net/http"
 	"runtime/debug"
 	"time"
+
+	"github.com/go-playground/form/v4"
 )
+
+func (app *application) decodeTemplateForm(r *http.Request, dst any) error {
+	err := r.ParseForm()
+	if err != nil {
+		return err
+	}
+
+	err = app.formDecoder.Decode(&dst, r.PostForm)
+	if err != nil {
+		var invalidDecodeError *form.InvalidDecoderError
+
+		if errors.As(err, &invalidDecodeError) {
+			panic(err)
+		}
+	}
+
+	return err
+}
 
 func (app *application) newTemplateData(r *http.Request) templateData {
 	return templateData{
