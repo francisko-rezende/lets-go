@@ -17,7 +17,7 @@ func (app *application) decodeTemplateForm(r *http.Request, dst any) error {
 		return err
 	}
 
-	err = app.formDecoder.Decode(&dst, r.PostForm)
+	err = app.formDecoder.Decode(dst, r.PostForm)
 	if err != nil {
 		var invalidDecodeError *form.InvalidDecoderError
 
