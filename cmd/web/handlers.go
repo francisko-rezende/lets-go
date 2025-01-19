@@ -76,6 +76,10 @@ func (app *application) userSignUpPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 }
 
+func ping(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Ok"))
+}
+
 func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Form = userLoginForm{}
