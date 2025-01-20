@@ -80,6 +80,11 @@ func ping(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Ok"))
 }
 
+func (app *application) about(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r)
+	app.render(w, r, http.StatusOK, "about.tmpl.html", data)
+}
+
 func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
 	data.Form = userLoginForm{}
