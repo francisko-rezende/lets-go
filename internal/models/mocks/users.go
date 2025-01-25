@@ -15,6 +15,10 @@ var mockUserWithoutPassword = models.UserWithoutPassword{
 	Created: time.Now(),
 }
 
+func (u *UserModel) PasswordUpdate(id int, currentPassword, newPassword string) error {
+	return nil
+}
+
 func (u *UserModel) Insert(name, email, password string) error {
 	switch email {
 	case "dupe@example.com":
