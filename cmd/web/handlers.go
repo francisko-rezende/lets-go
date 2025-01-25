@@ -229,3 +229,26 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 }
+
+func (app *application) accountView(w http.ResponseWriter, r *http.Request) {
+	err := app.sessionManager.RenewToken(r.Context())
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
+	userWithoutPassword, err := app.users.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+		} else {
+			app.serverError(w, r, err)
+			return
+
+		}
+	}
+	data := app.newTemplateData(r)
+	data.User = userWithoutPassword
+	app.render(w, r, http.StatusOK, "account.tmpl.html", data)
+}

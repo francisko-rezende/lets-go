@@ -14,6 +14,7 @@ type UserModelInterface interface {
 	Insert(name, email, password string) error
 	Authenticate(email, password string) (int, error)
 	Exists(id int) (bool, error)
+	Get(id int) (UserWithoutPassword, error)
 }
 
 type User struct {
@@ -24,8 +25,33 @@ type User struct {
 	Created        time.Time
 }
 
+type UserWithoutPassword struct {
+	ID      int
+	Name    string
+	Email   string
+	Created time.Time
+}
+
 type UserModel struct {
 	DB *sql.DB
+}
+
+func (u *UserModel) Get(id int) (UserWithoutPassword, error) {
+	stmt := `SELECT name, email, created FROM users WHERE id = ?`
+	row := u.DB.QueryRow(stmt, id)
+
+	var user UserWithoutPassword
+
+	err := row.Scan(&user.Name, &user.Email, &user.Created)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return UserWithoutPassword{}, ErrNoRecord
+		} else {
+			return UserWithoutPassword{}, err
+		}
+	}
+
+	return user, nil
 }
 
 func (u *UserModel) Insert(name, email, password string) error {
