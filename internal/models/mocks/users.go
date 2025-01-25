@@ -1,8 +1,23 @@
 package mocks
 
-import "snippetbox.francisko/internal/models"
+import (
+	"time"
+
+	"snippetbox.francisko/internal/models"
+)
 
 type UserModel struct{}
+
+var mockUserWithoutPassword = models.UserWithoutPassword{
+	ID:      1,
+	Name:    "Alice",
+	Email:   "alice@example.com",
+	Created: time.Now(),
+}
+
+func (u *UserModel) PasswordUpdate(id int, currentPassword, newPassword string) error {
+	return nil
+}
 
 func (u *UserModel) Insert(name, email, password string) error {
 	switch email {
@@ -14,7 +29,7 @@ func (u *UserModel) Insert(name, email, password string) error {
 }
 
 func (u *UserModel) Authenticate(email, password string) (int, error) {
-	if email == "alice@example.com" && password == "password" {
+	if email == "alice@example.com" && password == "pa$$word" {
 		return 1, nil
 	}
 
@@ -27,5 +42,14 @@ func (u *UserModel) Exists(id int) (bool, error) {
 		return true, nil
 	default:
 		return false, nil
+	}
+}
+
+func (u *UserModel) Get(id int) (models.UserWithoutPassword, error) {
+	switch id {
+	case 1:
+		return mockUserWithoutPassword, nil
+	default:
+		return models.UserWithoutPassword{}, models.ErrNoRecord
 	}
 }
